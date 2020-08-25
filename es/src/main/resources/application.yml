@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 123456
+  data:
+    elasticsearch:
+      cluster-nodes: 192.168.161.169:9300
+      cluster-name: myes
+  freemarker:
+    charset: utf-8
+    suffix: .ftl
+    content-type: text/html
+    cache: false
+    template-loader-path:
+      classpath: /templates
+
+mybatis:
+  config-location: classpath:mybatis/mybatis.config.xml
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  type-aliases-package: com.missxhh.demo.es.model
+
+logging:
+  level:
+    root: info
+  path: ./log
+
+server:
+  port: 8111

@@ -1,0 +1,9 @@
+server:
+  port: 9002
+
+es:
+  server:
+    host: 192.168.161.169
+    port: 9300
+  cluster:
+    name: myes
