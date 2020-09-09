@@ -12,7 +12,14 @@
     <modules>
         <module>es</module>
         <module>es-client</module>
-        <module>rpc-bio</module>
+        <module>rpc-bio-server</module>
+        <module>rpc-bio-client</module>
+        <module>rpc-nio-server</module>
+        <module>rpc-nio-client</module>
+        <module>rpc-netty-server</module>
+        <module>rpc-netty-client</module>
+        <module>test</module>
+        <module>rpc-dubbo-server</module>
     </modules>
 
     <properties>
