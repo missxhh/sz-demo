@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	    http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!-- 应用信息 -->
+    <dubbo:application name="rpc-dubbo-client"></dubbo:application>
+    <!-- 协议，直接使用dubbo协议 -->
+    <dubbo:protocol id="protocol" name="dubbo"></dubbo:protocol>
+    <!-- 注册中心 -->
+    <dubbo:registry address="zookeeper://192.168.161.147:2181"></dubbo:registry>
+
+    <!-- 注册引用: 订单、库存、消息 -->
+    <dubbo:reference id="orderService" interface="com.missxhh.server.order.IOrderService"></dubbo:reference>
+    <dubbo:reference id="storeService" interface="com.missxhh.server.store.IStoreService"></dubbo:reference>
+    <dubbo:reference id="smsService" interface="com.missxhh.server.sms.ISmsService"></dubbo:reference>
+
+</beans>

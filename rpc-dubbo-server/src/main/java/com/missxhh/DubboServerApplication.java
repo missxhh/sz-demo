@@ -1,8 +1,9 @@
 package com.missxhh;
 
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import com.missxhh.server.DubboServerExpose;
+import com.missxhh.server.DubboServerExposeByAnnotation;
+import com.missxhh.server.DubboServerExposeByXml;
 
 /**
  * Dubbo服务
@@ -11,11 +12,11 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class DubboServerApplication {
 
     public static void main(String[] args) {
-
-        AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext("com.missxhh");
-        annotationConfigApplicationContext.start();
-
-        System.out.println("============= RPC Dubbo 服务端启动成功，使用端口：" + PORT + " =============");
-
+        DubboServerExpose serverApp;
+        // 通过注解的方式启动
+        // serverApp = new DubboServerExposeByAnnotation();
+        // 通过XML的方式启动
+        serverApp = new DubboServerExposeByXml();
+        while(true) {}
     }
 }

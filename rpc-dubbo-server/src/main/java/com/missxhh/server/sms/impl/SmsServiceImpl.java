@@ -1,8 +1,10 @@
 package com.missxhh.server.sms.impl;
 
+import com.alibaba.dubbo.config.annotation.Service;
 import com.missxhh.entity.Order;
 import com.missxhh.server.sms.ISmsService;
 
+@Service
 public class SmsServiceImpl implements ISmsService {
 
     @Override

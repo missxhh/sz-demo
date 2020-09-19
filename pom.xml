@@ -20,6 +20,8 @@
         <module>rpc-netty-client</module>
         <module>test</module>
         <module>rpc-dubbo-server</module>
+        <module>rpc-dubbo-client</module>
+        <module>rpc-netty-reg</module>
     </modules>
 
     <properties>

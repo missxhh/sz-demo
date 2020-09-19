@@ -1,6 +1,6 @@
 package com.missxhh.netty;
 
-import com.missxhh.netty.handler.ClientHandler;
+import com.missxhh.netty.handler.RegisterHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -18,12 +18,10 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
  **/
 public class NettyInitializer extends ChannelInitializer<SocketChannel> {
 
-    private ClientHandler clientHandler;
-
-    public NettyInitializer(ClientHandler clientHandler){
-        this.clientHandler = clientHandler;
-    }
-
+    /**
+     * 初始化channel
+     * @author hjf
+     **/
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
 
@@ -33,16 +31,16 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
         socketChannel.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65535, 0, 2, 0, 2));
         // Netty 报文长度处理器 - 编码，给报文添加长度
         socketChannel.pipeline().addLast("frameEncoder", new LengthFieldPrepender(2));
-        // 消息编码
-        socketChannel.pipeline().addLast("encoder", new ObjectEncoder());
         // 消息解码
         socketChannel.pipeline().addLast("decoder", new ObjectDecoder(Integer.MAX_VALUE, ClassResolvers.cacheDisabled(null)));
+        // 消息编码
+        socketChannel.pipeline().addLast("encoder", new ObjectEncoder());
         // 设置连接超时时间,超时时间1分钟
         socketChannel.pipeline().addLast(new ReadTimeoutHandler(60));
 
-        // 设置客户端响应接收类
-        if(clientHandler != null) {
-            socketChannel.pipeline().addLast(clientHandler);
-        }
+        // 添加注册中心处理逻辑
+        RegisterHandler registerHandler = new RegisterHandler();
+        socketChannel.pipeline().addLast(registerHandler);
     }
+
 }

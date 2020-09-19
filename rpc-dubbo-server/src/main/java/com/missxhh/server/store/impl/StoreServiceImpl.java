@@ -1,8 +1,10 @@
 package com.missxhh.server.store.impl;
 
+import com.alibaba.dubbo.config.annotation.Service;
 import com.missxhh.entity.Goods;
 import com.missxhh.server.store.IStoreService;
 
+@Service
 public class StoreServiceImpl implements IStoreService {
 
     @Override

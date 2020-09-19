@@ -1,6 +1,13 @@
 package com.missxhh.netty;
 
-import com.missxhh.netty.handler.ClientHandler;
+import com.missxhh.netty.handler.ServiceHandler;
+import com.missxhh.netty.handler.ServiceToRegHandler;
+import com.missxhh.server.order.IOrderService;
+import com.missxhh.server.order.impl.OrderServiceImpl;
+import com.missxhh.server.sms.ISmsService;
+import com.missxhh.server.sms.impl.SmsServiceImpl;
+import com.missxhh.server.store.IStoreService;
+import com.missxhh.server.store.impl.StoreServiceImpl;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -16,14 +23,12 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
  * channel 始化配置
  * @author hjf
  **/
-public class NettyInitializer extends ChannelInitializer<SocketChannel> {
+public class NettyToRegInitializer extends ChannelInitializer<SocketChannel> {
 
-    private ClientHandler clientHandler;
-
-    public NettyInitializer(ClientHandler clientHandler){
-        this.clientHandler = clientHandler;
-    }
-
+    /**
+     * 初始化channel
+     * @author hjf
+     **/
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
 
@@ -33,16 +38,15 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
         socketChannel.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65535, 0, 2, 0, 2));
         // Netty 报文长度处理器 - 编码，给报文添加长度
         socketChannel.pipeline().addLast("frameEncoder", new LengthFieldPrepender(2));
-        // 消息编码
-        socketChannel.pipeline().addLast("encoder", new ObjectEncoder());
         // 消息解码
         socketChannel.pipeline().addLast("decoder", new ObjectDecoder(Integer.MAX_VALUE, ClassResolvers.cacheDisabled(null)));
+        // 消息编码
+        socketChannel.pipeline().addLast("encoder", new ObjectEncoder());
         // 设置连接超时时间,超时时间1分钟
         socketChannel.pipeline().addLast(new ReadTimeoutHandler(60));
 
-        // 设置客户端响应接收类
-        if(clientHandler != null) {
-            socketChannel.pipeline().addLast(clientHandler);
-        }
+        // 实例化服务处理器，并注册服务
+        socketChannel.pipeline().addLast(new ServiceToRegHandler());
     }
+
 }

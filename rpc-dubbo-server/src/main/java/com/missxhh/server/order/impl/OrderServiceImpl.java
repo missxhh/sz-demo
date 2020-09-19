@@ -1,9 +1,11 @@
 package com.missxhh.server.order.impl;
 
+import com.alibaba.dubbo.config.annotation.Service;
 import com.missxhh.data.OrderData;
 import com.missxhh.entity.Order;
 import com.missxhh.server.order.IOrderService;
 
+@Service
 public class OrderServiceImpl implements IOrderService {
 
     @Override
