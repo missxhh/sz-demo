@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.missxhh</groupId>
-    <artifactId>esclient</artifactId>
+    <artifactId>es-client</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>es-client</name>
     <description>Demo project ES Client</description>
