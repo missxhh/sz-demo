@@ -2,9 +2,8 @@ package com.missxhh.server;
 
 
 import com.missxhh.entity.RegData;
-import com.missxhh.netty.NettyInitializer;
 import com.missxhh.netty.NettyToRegInitializer;
-import com.missxhh.netty.handler.RegHandler;
+import com.missxhh.netty.handler.HeartBeatReqHandler;
 import com.missxhh.netty.handler.ServiceHolder;
 import com.missxhh.netty.handler.ServiceToRegHandler;
 import com.missxhh.server.order.IOrderService;
@@ -31,7 +30,7 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 
 /**
- * NIO服务暴露
+ * NIO服务暴露与注册
  * @author hjf
  **/
 public class NettyServerExposeToReg {
@@ -55,21 +54,18 @@ public class NettyServerExposeToReg {
         EventLoopGroup childGroup = new NioEventLoopGroup();        // 负责网络读写
 
         try {
-            // 实例化服务处理器，并注册服务
-            NettyToRegInitializer nettyToRegInitializer = new NettyToRegInitializer();
-
+            // 实例化服务处理器
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(eventLoopGroup, childGroup)
                     .channel(NioServerSocketChannel.class)              // 服务端的Nio通道
                     .option(ChannelOption.SO_BACKLOG, 1024)     // 指定连接队列大小
-                    .childHandler(nettyToRegInitializer);      // Netty初始化器
-
-            registerService(IOrderService.class.getName(), OrderServiceImpl.class);
-            registerService(IStoreService.class.getName(), StoreServiceImpl.class);
-            registerService(ISmsService.class.getName(), SmsServiceImpl.class);
+                    .childHandler(new NettyToRegInitializer());      // Netty初始化器
 
             ChannelFuture future = serverBootstrap.bind(HOST, PORT).sync();
             System.out.println("============= RPC Netty 服务端启动成功，使用端口：" + PORT + " =============");
+
+            // 向注册中心注册服务
+            registerServiceToReg();
 
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
@@ -84,12 +80,18 @@ public class NettyServerExposeToReg {
      * 注册服务接口
      * @author hjf
      **/
-    private void registerService(String className, Class serviceImpl){
-        RegHandler regHandler = new RegHandler();
+    private void registerServiceToReg(){
+        // 本地服务注册
+        ServiceToRegHandler serviceToRegHandler = new ServiceToRegHandler();
+        serviceToRegHandler.registerService(IOrderService.class.getName(), OrderServiceImpl.class);
+        serviceToRegHandler.registerService(IStoreService.class.getName(), StoreServiceImpl.class);
+        serviceToRegHandler.registerService(ISmsService.class.getName(), SmsServiceImpl.class);
+        // 远程服务注册
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         try {
+            String services = ServiceHolder.getInstance().getAllServiceName();
             RegData regData = new RegData();
-            regData.setServiceName(className);
+            regData.setServiceName(services);
             regData.setHost(HOST);
             regData.setPort(PORT);
             regData.setType(1);
@@ -111,32 +113,20 @@ public class NettyServerExposeToReg {
                             socketChannel.pipeline().addLast("encoder", new ObjectEncoder());
                             // 设置连接超时时间,超时时间1分钟
                             socketChannel.pipeline().addLast(new ReadTimeoutHandler(60));
-                            // 注册返回
-                            socketChannel.pipeline().addLast(regHandler);
+                            // 服务注册处理器
+                            socketChannel.pipeline().addLast(serviceToRegHandler);
+                            // 心跳处理器
+                            socketChannel.pipeline().addLast("HeartBeatHandler", new HeartBeatReqHandler());
                         }
                     });
 
             // 连接服务
             ChannelFuture channelFuture = bootstrap.connect(REG_HOST, REG_PORT).sync();
-            // 发送数据请求
+            // 发送注册信息
             channelFuture.channel().writeAndFlush(regData).sync();
-            // 等待服务返回
             channelFuture.channel().closeFuture().sync();
-            // 获取服务返回
-            Object obj = regHandler.getResponse();
-            if(obj == null) {
-                System.out.println("服务[" + className + "]注册失败！");
-                System.exit(1);
-            }
-            boolean res = (boolean) regHandler.getResponse();
-            if(!res) {
-                System.out.println("服务[" + className + "]注册失败！");
-                System.exit(1);
-            }
-            System.out.println("服务[" + className + "]注册成功");
-            ServiceHolder.getInstance().put(className, serviceImpl);
         } catch (Exception e) {
-            System.out.println("调用远程服务失败");
+            System.out.println("服务注册失败");
         } finally {
             eventLoopGroup.shutdownGracefully();
         }

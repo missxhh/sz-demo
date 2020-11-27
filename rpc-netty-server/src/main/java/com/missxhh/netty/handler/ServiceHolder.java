@@ -12,7 +12,7 @@ public class ServiceHolder {
     private static Map<String, Class> serviceHolder = new HashMap<String, Class>();
 
     private ServiceHolder(){
-        this.serviceHolder = new HashMap<>();
+        serviceHolder = new HashMap<>();
     }
 
     public static ServiceHolder getInstance(){
@@ -23,10 +23,25 @@ public class ServiceHolder {
     }
 
     public synchronized Class get(String name) {
-        return this.serviceHolder.get(name);
+        return serviceHolder.get(name);
     }
 
     public synchronized void put(String name, Class clazz) {
-        this.serviceHolder.put(name, clazz);
+        serviceHolder.put(name, clazz);
+    }
+
+    /**
+     * 获取所有的服务名
+     * @author hjf
+     **/
+    public String getAllServiceName() {
+        String res = "";
+        for (String name : serviceHolder.keySet()) {
+            res += name + ",";
+        }
+        if(res.length() > 0) {
+            res = res.substring(0, res.length() - 1);
+        }
+        return res;
     }
 }

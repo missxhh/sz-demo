@@ -16,6 +16,7 @@ import java.lang.reflect.Proxy;
 
 /**
  * 客户端服务发现类
+ * @author hjf
  **/
 public class NettyServerDiscover {
 

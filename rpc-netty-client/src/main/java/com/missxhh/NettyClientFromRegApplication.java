@@ -10,7 +10,7 @@ import com.missxhh.server.store.IStoreService;
 import java.math.BigDecimal;
 
 /**
- * 业务客户端
+ * 业务客户端（注册中心版）
  * @author hjf
  **/
 public class NettyClientFromRegApplication {

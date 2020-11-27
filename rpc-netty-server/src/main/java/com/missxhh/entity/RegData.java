@@ -6,7 +6,7 @@ public class RegData implements Serializable {
 
     private static final Long serialVersionUID = 1L;
 
-    // 类型 1、注册服务 2、查询服务
+    // 类型 1、注册服务 2、查询服务 3、心跳请求 4、心跳应答
     private int type;
     // 服务名
     private String serviceName;

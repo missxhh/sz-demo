@@ -1,13 +1,6 @@
 package com.missxhh.netty;
 
-import com.missxhh.netty.handler.ServiceHandler;
-import com.missxhh.netty.handler.ServiceToRegHandler;
-import com.missxhh.server.order.IOrderService;
-import com.missxhh.server.order.impl.OrderServiceImpl;
-import com.missxhh.server.sms.ISmsService;
-import com.missxhh.server.sms.impl.SmsServiceImpl;
-import com.missxhh.server.store.IStoreService;
-import com.missxhh.server.store.impl.StoreServiceImpl;
+import com.missxhh.netty.handler.RegServiceHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -33,7 +26,7 @@ public class NettyToRegInitializer extends ChannelInitializer<SocketChannel> {
     protected void initChannel(SocketChannel socketChannel) throws Exception {
 
         // Netty 提供的日志打印处理器，用于查看网络日志
-        // socketChannel.pipeline().addLast(new LoggingHandler(LogLevel.ERROR));
+         socketChannel.pipeline().addLast(new LoggingHandler(LogLevel.ERROR));
         // Netty 报文长度处理器 - 解码，拿到实际的传输报文
         socketChannel.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65535, 0, 2, 0, 2));
         // Netty 报文长度处理器 - 编码，给报文添加长度
@@ -45,8 +38,8 @@ public class NettyToRegInitializer extends ChannelInitializer<SocketChannel> {
         // 设置连接超时时间,超时时间1分钟
         socketChannel.pipeline().addLast(new ReadTimeoutHandler(60));
 
-        // 实例化服务处理器，并注册服务
-        socketChannel.pipeline().addLast(new ServiceToRegHandler());
+        // 配置处理器
+        socketChannel.pipeline().addLast(new RegServiceHandler());
     }
 
 }

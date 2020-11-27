@@ -10,7 +10,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 /**
- * NIO服务暴露
+ * Netty注册中心
  * @author hjf
  **/
 public class NettyRegApplication {

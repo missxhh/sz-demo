@@ -8,8 +8,11 @@ import com.missxhh.server.sms.impl.SmsServiceImpl;
 import com.missxhh.server.store.IStoreService;
 import com.missxhh.server.store.impl.StoreServiceImpl;
 
+/***
+ * 服务启动
+ * @author hjf
+ **/
 public class ServerApplication {
-
     public static void main(String[] args) {
         new Thread(new Runnable() {
             @Override
@@ -23,5 +26,4 @@ public class ServerApplication {
             }
         }).start();
     }
-
 }

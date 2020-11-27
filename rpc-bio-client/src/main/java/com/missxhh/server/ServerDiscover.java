@@ -10,6 +10,7 @@ import java.net.Socket;
 
 /**
  * 客户端服务发现类
+ * @author hjf
  **/
 public class ServerDiscover {
 

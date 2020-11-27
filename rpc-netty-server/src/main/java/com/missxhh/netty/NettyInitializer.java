@@ -1,5 +1,6 @@
 package com.missxhh.netty;
 
+import com.missxhh.netty.handler.HeartHandler;
 import com.missxhh.netty.handler.ServiceHandler;
 import com.missxhh.server.order.IOrderService;
 import com.missxhh.server.order.impl.OrderServiceImpl;
@@ -44,6 +45,7 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
         // 设置连接超时时间,超时时间1分钟
         socketChannel.pipeline().addLast(new ReadTimeoutHandler(60));
 
+
         // 实例化服务处理器，并注册服务
         ServiceHandler serviceHandler = new ServiceHandler();
         serviceHandler.registerService(IOrderService.class.getName(), OrderServiceImpl.class);
@@ -51,5 +53,4 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
         serviceHandler.registerService(ISmsService.class.getName(), SmsServiceImpl.class);
         socketChannel.pipeline().addLast(serviceHandler);
     }
-
 }

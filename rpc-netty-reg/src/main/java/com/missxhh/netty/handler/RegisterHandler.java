@@ -9,7 +9,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.util.*;
 
 /**
- * 服务注册于发现
+ * 服务注册、心跳、服务提取
  * @author hjf
  **/
 public class RegisterHandler extends ChannelInboundHandlerAdapter {
@@ -21,58 +21,80 @@ public class RegisterHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext channelHandlerContext, Object  object) throws Exception {
         RegData regData = (RegData) object;
-        if(regData == null) {
-            channelHandlerContext.close();
-            return;
-        }
         if(regData.getType() == 1) {
             // 服务注册
             registerService(regData);
-            // 返回成功
-            channelHandlerContext.writeAndFlush(true);
-        } else {
+            channelHandlerContext.writeAndFlush(object);
+        } else if(regData.getType() == 2) {
             // 服务获取
             ServerNode res = getService(regData.getServiceName());
             // 将结果返回
             if(res != null) {
                 channelHandlerContext.writeAndFlush(res);
             }
+        } else if(regData.getType() == 3) {
+            // 心跳响应
+            System.out.println("--- 接收到心跳 -----");
+            RegData sendData = new RegData();
+            sendData.setType(4);
+            channelHandlerContext.writeAndFlush(sendData);
+        } else {
+            channelHandlerContext.fireChannelRead(object);
         }
-        channelHandlerContext.close();
     }
 
+    /**
+     * 注册服务
+     * @author hjf
+     * @param regData 注册的服务信息
+     **/
     private synchronized void registerService(RegData regData){
         // 判断服务是否已经注册
-        Set<ServerNode> servers = ServiceHolder.getInstance().get(regData.getServiceName());
-        String host = regData.getHost();
-        int port = regData.getPort();
-        if(servers != null && servers.size() > 0) {
-            boolean isRepeat = false;
-            for (ServerNode node : servers) {
-                if(node.getServerHost().equals(host) && node.getServerPort() == port) {
-                System.out.println("服务[" + regData.getServiceName() + "]，主机[" + host + "]，端口[" + port + "]重复注册");
-                isRepeat = true;
-                break;
-            }
-        }
-        if(!isRepeat) {
-            ServerNode newNode = new ServerNode(host, port);
-            servers.add(newNode);
-            System.out.println("服务[" + regData.getServiceName() + "]，主机[" + host + "]，端口[" + port + "] 注册成功");
-        }
+        String services = regData.getServiceName();
+        String[] arrays;
+        if(services.indexOf(',') != -1) {
+            arrays = services.split(",");
         } else {
-            servers = new HashSet<>();
-            ServerNode newNode = new ServerNode(host, port);
-            servers.add(newNode);
-            ServiceHolder.getInstance().put(regData.getServiceName(), servers);
-            System.out.println("服务[" + regData.getServiceName() + "]，主机[" + host + "]，端口[" + port + "] 注册成功");
-
+            arrays = new String[1];
+            arrays[0] = regData.getServiceName();
+        }
+        // 允许同时注册多个服务
+        for (String serviceName : arrays) {
+            Set<ServerNode> servers = ServiceHolder.getInstance().get(serviceName);
+            String host = regData.getHost();
+            int port = regData.getPort();
+            if(servers != null && servers.size() > 0) {
+                boolean isRepeat = false;
+                for (ServerNode node : servers) {
+                    if(node.getServerHost().equals(host) && node.getServerPort() == port) {
+                        System.out.println("服务[" + serviceName + "]，主机[" + host + "]，端口[" + port + "]重复注册");
+                        isRepeat = true;
+                        break;
+                    }
+                }
+                if(!isRepeat) {
+                    ServerNode newNode = new ServerNode(host, port);
+                    servers.add(newNode);
+                    System.out.println("服务[" + serviceName + "]，主机[" + host + "]，端口[" + port + "] 注册成功");
+                }
+            } else {
+                servers = new HashSet<>();
+                ServerNode newNode = new ServerNode(host, port);
+                servers.add(newNode);
+                ServiceHolder.getInstance().put(serviceName, servers);
+                System.out.println("服务[" + serviceName + "]，主机[" + host + "]，端口[" + port + "] 注册成功");
+            }
         }
     }
 
+    /**
+     * 获取服务
+     * @author hjf
+     * @param serverName 要获取的服务名
+     **/
     private ServerNode getService(String serverName){
         Set<ServerNode> set = ServiceHolder.getInstance().get(serverName);
-        if(set == null && set.size() <= 0) {
+        if(set == null || set.size() <= 0) {
             System.out.println("获取的服务[" + serverName + "]不存在");
             return null;
         }
@@ -85,5 +107,4 @@ public class RegisterHandler extends ChannelInboundHandlerAdapter {
         System.out.println("随机分配服务：[" + serverName + "]，随机坐标：" + index);
         return (ServerNode) set.toArray()[index];
     }
-
 }

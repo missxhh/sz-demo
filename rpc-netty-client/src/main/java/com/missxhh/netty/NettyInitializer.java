@@ -28,7 +28,7 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
     protected void initChannel(SocketChannel socketChannel) throws Exception {
 
         // Netty 提供的日志打印处理器，用于查看网络日志
-        // socketChannel.pipeline().addLast(new LoggingHandler(LogLevel.ERROR));
+        //socketChannel.pipeline().addLast(new LoggingHandler(LogLevel.ERROR));
         // Netty 报文长度处理器 - 解码，拿到实际的传输报文
         socketChannel.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(65535, 0, 2, 0, 2));
         // Netty 报文长度处理器 - 编码，给报文添加长度
