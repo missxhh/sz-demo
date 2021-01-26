@@ -1,0 +1,37 @@
+server:
+  port: 7116
+
+spring:
+  application:
+    name: schedule-elastic-job-shardingsphere
+  main:
+    allow-bean-definition-overriding: true
+
+elasticjob:
+  reg-center:
+    serverLists: "127.0.0.1:2181"
+    ## serverLists: "192.168.244.89:2181"
+    namespace: schedule-elastic-job
+    sessionTimeoutMilliseconds: 50000
+    connectionTimeoutMilliseconds: 50000
+  jobs:
+    customSimpleJob:
+      elasticJobClass: com.missxhh.job.CustomSimpleJob
+      cron: 0/5 * * * * ?
+      shardingTotalCount: 1
+      jobListenerTypes: "customConfigJobListener"
+    customShardingJob:
+      elasticJobClass: com.missxhh.job.CustomShardingJob
+      cron: 0/5 * * * * ?
+      shardingTotalCount: 2
+      jobListenerTypes: "customConfigJobListener"
+      shardingItemParameters: 0=user0,1=user1,2=user2
+    customConfigJob:
+      elasticJobClass: com.missxhh.job.CustomConfigJob
+      cron: 0/5 * * * * ?
+      shardingTotalCount: 3
+      shardingItemParameters: 0=user0,1=user1,2=user2
+      jobParameter: 'custom param1'
+      misfire: true
+      jobListenerTypes: "customConfigJobListener"
+      jobErrorHandlerType: "customConfigJobExceptionHandler"

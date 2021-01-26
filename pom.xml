@@ -23,6 +23,8 @@
         <module>rpc-dubbo-client</module>
         <module>rpc-netty-reg</module>
         <module>mq-rabbitmq</module>
+        <module>schedule-elastic-job</module>
+        <module>schedule-xxl-job</module>
     </modules>
 
     <properties>
